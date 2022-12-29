@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
+var jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 // midleware
@@ -23,6 +24,13 @@ async function run() {
 
     app.get("/", (req, res) => {
       res.send("query server is running");
+    });
+
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
+      res.send({ token });
+      console.log(token);
     });
 
     app.get("/allpost", async (req, res) => {
@@ -68,15 +76,17 @@ async function run() {
     app.put("/allpost/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const likes = req.body;
+      const data = req.body;
       const updateLikes = {
-        $set: {
-          userLikes: likes.likeCount,
+        $push: {
+          userLikes: {
+            userId: data.activity.userId,
+            like: data.activity.likes,
+          },
         },
       };
-      console.log(likes);
-      const result = await postCollection.updateOne(query, updateLikes);
-
+      console.log(data.activity.likes);
+      const result = await postCollection.findOneAndUpdate(query, updateLikes);
       res.send(result);
     });
 
@@ -88,12 +98,13 @@ async function run() {
     app.get("/allpost/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result = await commentsColllection.findOne(query);
+      const result = await postCollection.findOne(query);
       res.send(result);
     });
     app.get("/comments/", async (req, res) => {
+      const sortPost = { timeStamp: -1 };
       const query = {};
-      const cursor = commentsColllection.find(query);
+      const cursor = commentsColllection.find(query).sort(sortPost);
       const result = await cursor.toArray();
       res.send(result);
     });
