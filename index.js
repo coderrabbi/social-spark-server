@@ -19,6 +19,7 @@ async function run() {
   try {
     const postCollection = client.db("socialSpark").collection("socialPost");
     const userCollection = client.db("socialSpark").collection("users");
+    const commentsColllection = client.db("socialSpark").collection("comments");
 
     app.get("/", (req, res) => {
       res.send("query server is running");
@@ -64,7 +65,7 @@ async function run() {
 
       res.send(result);
     });
-    app.post("/allpost/:id", async (req, res) => {
+    app.put("/allpost/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const likes = req.body;
@@ -79,7 +80,30 @@ async function run() {
       res.send(result);
     });
 
-    app.put("");
+    app.post("/allpost/:id", async (req, res) => {
+      const comment = req.body;
+      const result = await commentsColllection.insertOne(comment);
+      res.send(result);
+    });
+    app.get("/allpost/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await commentsColllection.findOne(query);
+      res.send(result);
+    });
+    app.get("/comments/", async (req, res) => {
+      const query = {};
+      const cursor = commentsColllection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    app.get("/comments/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {};
+      const cursor = commentsColllection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
   } finally {
   }
 }
