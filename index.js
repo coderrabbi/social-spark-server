@@ -69,7 +69,6 @@ async function run() {
         },
       };
       const result = await userCollection.updateOne(query, updateProfile);
-      console.log(updateInfo);
 
       res.send(result);
     });
