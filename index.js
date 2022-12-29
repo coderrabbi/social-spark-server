@@ -85,7 +85,7 @@ async function run() {
           },
         },
       };
-      console.log(data.activity.likes);
+
       const result = await postCollection.findOneAndUpdate(query, updateLikes);
       res.send(result);
     });
