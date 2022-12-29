@@ -23,7 +23,7 @@ async function run() {
     const commentsColllection = client.db("socialSpark").collection("comments");
 
     app.get("/", (req, res) => {
-      res.send("query server is running");
+      res.send("server is running");
     });
 
     app.post("/jwt", (req, res) => {
