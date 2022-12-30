@@ -57,6 +57,7 @@ async function run() {
       const user = await userCollection.findOne(query);
       res.send(user);
     });
+
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -76,17 +77,27 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const data = req.body;
+      const post = data.activity.post.userLikes;
+      const userEmail = data.activity.userEmail;
+      const cursor = userCollection.find({});
+      const users = await cursor.toArray();
+      const matchUser = post.some((email) => email.userEmail === userEmail);
       const updateLikes = {
         $push: {
           userLikes: {
-            userId: data.activity.userId,
+            userEmail: data.activity.userEmail,
             like: data.activity.likes,
           },
         },
       };
-
-      const result = await postCollection.findOneAndUpdate(query, updateLikes);
-      res.send(result);
+      if (!matchUser) {
+        const result = await postCollection.findOneAndUpdate(
+          query,
+          updateLikes
+        );
+        res.send(result);
+      }
+      console.log(matchUser);
     });
 
     app.post("/allpost/:id", async (req, res) => {
